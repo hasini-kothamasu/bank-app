@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bank App</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        .menu button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            background: #3498db;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .menu button:hover {
+            background: #2980b9;
+        }
+
+        .card {
+            margin: 20px auto;
+            padding: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        input {
+            display: block;
+            margin: 10px auto;
+            padding: 8px;
+            width: 90%;
+        }
+
+        .btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background: #27ae60;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>🏦 Banking System</h2>
+
+<div class="menu">
+    <button onclick="show('create')">Create</button>
+    <button onclick="show('deposit')">Deposit</button>
+    <button onclick="show('withdraw')">Withdraw</button>
+    <button onclick="show('balance')">Balance</button>
+</div>
+
+<div id="create" class="card" style="display:none;">
+    <h3>Create Account</h3>
+    <input id="cid" placeholder="Account ID">
+    <input id="cname" placeholder="Name">
+    <button class="btn" onclick="createAccount()">Create</button>
+</div>
+
+<div id="deposit" class="card" style="display:none;">
+    <h3>Deposit</h3>
+    <input id="did" placeholder="Account ID">
+    <input id="damt" placeholder="Amount">
+    <button class="btn" onclick="deposit()">Deposit</button>
+</div>
+
+<div id="withdraw" class="card" style="display:none;">
+    <h3>Withdraw</h3>
+    <input id="wid" placeholder="Account ID">
+    <input id="wamt" placeholder="Amount">
+    <button class="btn" onclick="withdraw()">Withdraw</button>
+</div>
+
+<div id="balance" class="card" style="display:none;">
+    <h3>Check Balance</h3>
+    <input id="bid" placeholder="Account ID">
+    <button class="btn" onclick="getBalance()">Check</button>
+</div>
+
+<p id="result"></p>
+
+<script>
+function show(section) {
+    document.getElementById("create").style.display = "none";
+    document.getElementById("deposit").style.display = "none";
+    document.getElementById("withdraw").style.display = "none";
+    document.getElementById("balance").style.display = "none";
+
+    document.getElementById(section).style.display = "block";
+}
+
+function createAccount() {
+    fetch('/bank/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            id: document.getElementById("cid").value,
+            name: document.getElementById("cname").value
+        })
+    })
+    .then(res => res.text())
+    .then(data => document.getElementById("result").innerText = data);
+}
+
+function deposit() {
+    let id = document.getElementById("did").value;
+    let amt = document.getElementById("damt").value;
+
+    fetch(`/bank/deposit/${id}?amount=${amt}`, {method:'POST'})
+    .then(res => res.text())
+    .then(data => document.getElementById("result").innerText = data);
+}
+
+function withdraw() {
+    let id = document.getElementById("wid").value;
+    let amt = document.getElementById("wamt").value;
+
+    fetch(`/bank/withdraw/${id}?amount=${amt}`, {method:'POST'})
+    .then(res => res.text())
+    .then(data => document.getElementById("result").innerText = data);
+}
+
+function getBalance() {
+    let id = document.getElementById("bid").value;
+
+    fetch(`/bank/account/${id}`)
+    .then(res => res.json())
+    .then(data => {
+        if(data && data.balance !== undefined)
+            document.getElementById("result").innerText = "Balance: " + data.balance;
+        else
+            document.getElementById("result").innerText = "Account not found";
+    });
+}
+</script>
+
+</body>
+</html>
